@@ -1,0 +1,60 @@
+dispatch:
+  max_consecutive_hops: 3
+  rules:
+    - name: broken
+      match:
+        labels: ["broken"]
+      mock:
+        start_error: "agent executable not found in PATH"
+    - name: flaky
+      match:
+        labels: ["flaky"]
+      mock:
+        model_name: claude-sonnet-5-5
+        turn_outcomes: [failed]
+        turn_delay_ms: 150
+    - name: specify
+      match:
+        labels: ["feature"]
+      next: implement
+      mock:
+        model_name: claude-opus-5-5
+        events_per_turn: 8
+        input_tokens_per_turn: 160000
+        cache_read_tokens_per_turn: 130000
+        output_tokens_per_turn: 7000
+    - name: implement
+      stage: stage-implement
+      mock:
+        model_name: claude-sonnet-5-5
+        events_per_turn: 12
+        input_tokens_per_turn: 220000
+        cache_read_tokens_per_turn: 190000
+        output_tokens_per_turn: 9000
+    - name: bugfix
+      match:
+        labels: ["bug"]
+      mock:
+        model_name: gpt-5.1-codex
+        events_per_turn: 9
+        input_tokens_per_turn: 140000
+        cache_read_tokens_per_turn: 100000
+        output_tokens_per_turn: 5000
+    - name: docs
+      match:
+        labels: ["documentation"]
+      mock:
+        model_name: claude-haiku-5-5
+        events_per_turn: 4
+        input_tokens_per_turn: 40000
+        cache_read_tokens_per_turn: 25000
+        output_tokens_per_turn: 3000
+    - name: research
+      match:
+        labels: ["research"]
+      mock:
+        model_name: gemini-3.5-flash
+        events_per_turn: 6
+        input_tokens_per_turn: 90000
+        cache_read_tokens_per_turn: 40000
+        output_tokens_per_turn: 4000
